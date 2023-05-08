@@ -5,11 +5,20 @@
 
   $arquivo_texto = fopen('registro_chamados.hd', 'r');
   
+  //Recupera os dados direto no array
   while(!feof($arquivo_texto)){
     $chamado = fgets($arquivo_texto);
-    $chamados_abertos[] = $chamado;
+    $chamados_abertos[] = explode('#', $chamado);
   }
-  
+  //Controle de exbibição
+  if($_SESSION['perfil_id'] == 2){
+    foreach($chamados_abertos as $key => $chamado){
+      if($chamado[0] != $_SESSION['id']){
+        unset($chamados_abertos[$key]);
+      }
+    }
+  }
+
   fclose($arquivo_texto);
 ?>
 <html>
@@ -54,20 +63,16 @@
             <div class="card-body">
               <? foreach($chamados_abertos as $chamado){ ?>
                 <?php
-                  $dados_chamado = explode('#', $chamado);
-                  //Lógica de controle de exibição de chamado
-                  //Verifica o tipo de perfil
-                  if($_SESSION['perfil_id'] == 2){
-                    if($_SESSION['id'] != $dados_chamado[0]){ continue; }
+                  //Verificação se o array está completo ou vazio.
+                  if(count($chamado) < 4 || empty($chamado)){
+                    continue;
                   }
-                  //Verifica se o array está completo para a impressão.
-                  if(count($dados_chamado) < 3){ continue; }
                 ?>
                 <div class="card mb-3 bg-light">
                   <div class="card-body">
-                    <h5 class="card-title"><?= $dados_chamado[1] ?></h5>
-                    <h6 class="card-subtitle mb-2 text-muted"><?= $dados_chamado[2] ?></h6>
-                    <p class="card-text"><?= $dados_chamado[3] ?></p>
+                    <h5 class="card-title"><?= $chamado[1] ?></h5>
+                    <h6 class="card-subtitle mb-2 text-muted"><?= $chamado[2] ?></h6>
+                    <p class="card-text"><?= $chamado[3] ?></p>
                   </div>
                 </div>
 
